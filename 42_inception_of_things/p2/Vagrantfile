@@ -1,0 +1,21 @@
+VM_BOX_NAME = "generic/alpine318"
+SERVER_NAME = "nbechardS"
+SERVER_IP = "192.168.56.110"
+SYNCED_FOLDER = "/vagrant"
+SERVER_SCRIPT_PATH = "./scripts/provision_S.sh"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = VM_BOX_NAME
+  config.vm.synced_folder ".", SYNCED_FOLDER
+
+  config.vm.define SERVER_NAME do |server|
+    server.vm.hostname = SERVER_NAME
+    server.vm.network "private_network", ip: SERVER_IP
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = SERVER_NAME
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+    server.vm.provision "shell", privileged: true, path: SERVER_SCRIPT_PATH, args: [SERVER_IP]
+  end
+end
