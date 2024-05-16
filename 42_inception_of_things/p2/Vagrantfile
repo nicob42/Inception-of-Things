@@ -3,6 +3,7 @@ SERVER_NAME = "nbechardS"
 SERVER_IP = "192.168.56.110"
 SYNCED_FOLDER = "/vagrant"
 SERVER_SCRIPT_PATH = "./scripts/provision_S.sh"
+APP_YAML_FOLDER = "./scripts/kubernetes_manifests"
 
 Vagrant.configure("2") do |config|
   config.vm.box = VM_BOX_NAME
@@ -16,6 +17,17 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
       vb.cpus = 1
     end
+    server.vm.provision "shell", inline: "mkdir -p /goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests"
+    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app1.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
+    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app2.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
+    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app3.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
+
+    # Provisionnement pour modifier les permissions du dossier de destination
+    server.vm.provision "shell", inline: <<-SHELL
+      sudo chmod -R 777 /goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/
+    SHELL
+
+    server.vm.provision "shell", privileged: true, inline: "kubectl apply -f /goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests"
     server.vm.provision "shell", privileged: true, path: SERVER_SCRIPT_PATH, args: [SERVER_IP]
   end
 end
