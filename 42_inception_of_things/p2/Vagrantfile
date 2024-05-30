@@ -8,6 +8,7 @@ APP_YAML_FOLDER = "./scripts/kubernetes_manifests"
 Vagrant.configure("2") do |config|
   config.vm.box = VM_BOX_NAME
   config.vm.synced_folder ".", SYNCED_FOLDER
+  config.vm.synced_folder "/home/kthierry/Desktop/Inception-of-Things/42_inception_of_things/p2/scripts/kubernetes_manifests", "/vagrant/kubernetes_manifests"
 
   config.vm.define SERVER_NAME do |server|
     server.vm.hostname = SERVER_NAME
@@ -17,17 +18,6 @@ Vagrant.configure("2") do |config|
       vb.memory = "1024"
       vb.cpus = 1
     end
-
-    # Création du dossier de destination et modification des permissions
-    server.vm.provision "shell", privileged: true, inline: <<-SHELL
-      mkdir -p /goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests
-      chmod -R 777 /goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests
-    SHELL
-
-    # Synchronisation des fichiers YAML
-    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app1.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
-    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app2.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
-    server.vm.provision "file", source: "#{APP_YAML_FOLDER}/app3.yaml", destination: "/goinfre/nbechard/42_inception_of_things/p2/scripts/kubernetes_manifests/"
 
     # Installation de K3s et application des fichiers YAML
     server.vm.provision "shell", privileged: true, path: SERVER_SCRIPT_PATH, args: [SERVER_IP]
